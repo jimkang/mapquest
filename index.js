@@ -10,6 +10,7 @@ var get = require('superagent').get;
  */
 
 var url = 'http://open.mapquestapi.com/geocoding/v1';
+var pathExists = require('object-path-exists');
 
 /**
  * Geocode an address
@@ -33,9 +34,18 @@ module.exports.geocode = function(options, callback) {
   geocode.end(function(err, res) {
     if (err) {
       callback(err);
-    } else if (res.body.results[0].locations.length === 0 && res.body.info.statuscode !== 200) {
+    }
+    else if (!pathExists(res, ['body', 'results'])) {
+      callback(new Error('No results returned for: ' + options.address));
+    }
+    else if (pathExists(res, ['body', 'info', 'statuscode']) &&
+      res.body.info.statuscode !== 200 &&
+      res.body.results[0].locations.length === 0 &&
+      pathExists(res, ['body', 'info', 'messages'])) {
+
       callback(new Error(res.body.info.messages[0]));
-    } else {
+    }
+    else {
       var results = res.body.results[0].locations[0];
       if (all) {
         results = res.body.results.map(function(result) {

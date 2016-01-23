@@ -19,6 +19,7 @@
   "author": "Trevor Gerhardt",
   "license": "BSD",
   "dependencies": {
+    "object-path-exists": "^1.0.0",
     "superagent": "*"
   },
   "devDependencies": {
